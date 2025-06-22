@@ -1,0 +1,18 @@
+package com.github.vyhovskyi.dao;
+
+import com.github.vyhovskyi.entity.Group;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface GroupDao extends AutoCloseable {
+    List<Group> getAllGroups();
+    Optional<Group> getGroupByName(String name);
+    void createGroup(Group group);
+    void updateGroup(Group group, String oldName);
+    void deleteGroup(String name);
+    List<Group> getGroupsByFilter(String groupName, String groupDescription, int limit, int offset);
+    List<Group> getGroupsByFilter(String groupName, String groupDescription);
+
+    void close();
+}
