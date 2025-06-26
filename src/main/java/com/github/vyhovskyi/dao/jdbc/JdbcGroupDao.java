@@ -12,10 +12,10 @@ import java.util.Optional;
 public class JdbcGroupDao implements GroupDao {
 
     private static final String GET_ALL = "SELECT * FROM `group`";
-    private static final String GET_BY_ID = "SELECT * FROM `group` WHERE group_name = ?";
+    private static final String GET_BY_ID = "SELECT * FROM `group` WHERE group_id = ?";
     private static final String CREATE = "INSERT INTO `group` (group_name, group_description) VALUES (?, ?)";
-    private static final String UPDATE = "UPDATE `group` SET group_name=?, group_description=?  WHERE group_name = ?";
-    private static final String DELETE = "DELETE FROM `group` WHERE group_name = ?";
+    private static final String UPDATE = "UPDATE `group` SET group_name=?, group_description=?  WHERE group_id = ?";
+    private static final String DELETE = "DELETE FROM `group` WHERE group_id = ?";
 
 
     private final Connection connection;
@@ -38,10 +38,10 @@ public class JdbcGroupDao implements GroupDao {
     }
 
     @Override
-    public Optional<Group> getGroupByName(String groupName) {
+    public Optional<Group> getGroupById(Integer id) {
         Optional<Group> group = Optional.empty();
         try(PreparedStatement query = connection.prepareStatement(GET_BY_ID)){
-            query.setString(1, groupName);
+            query.setInt(1, id);
             ResultSet rs = query.executeQuery();
             if(rs.next()) {
                 group = Optional.of(extractGroupFromResultSet(rs));
@@ -64,11 +64,11 @@ public class JdbcGroupDao implements GroupDao {
     }
 
     @Override
-    public void updateGroup(Group group, String oldGroupName) {
+    public void updateGroup(Group group) {
         try(PreparedStatement query = connection.prepareStatement(UPDATE)){
             query.setString(1, group.getName());
             query.setString(2, group.getDescription());
-            query.setString(3, oldGroupName);
+            query.setInt(3, group.getId());
             query.executeUpdate();
         }catch (SQLException e){
             throw new ServerException(e);
@@ -76,9 +76,9 @@ public class JdbcGroupDao implements GroupDao {
     }
 
     @Override
-    public void deleteGroup(String name) {
+    public void deleteGroup(Integer id) {
         try(PreparedStatement query = connection.prepareStatement(DELETE)){
-            query.setString(1, name);
+            query.setInt(1, id);
             query.executeUpdate();
         }catch (SQLException e){
             throw new ServerException(e);
@@ -145,7 +145,11 @@ public class JdbcGroupDao implements GroupDao {
     }
 
     protected static Group extractGroupFromResultSet(ResultSet rs) throws SQLException {
-        return new Group(rs.getString("group_name"), rs.getString("group_description"));
+        return  Group.builder()
+                .id(rs.getInt("group_id"))
+                .name(rs.getString("group_name"))
+                .description(rs.getString("group_description"))
+                .build();
     }
 
 

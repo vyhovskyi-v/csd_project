@@ -10,13 +10,14 @@ import java.util.*;
 
 public class JdbcProductDao implements ProductDao {
 
-    private static final String GET_ALL = "SELECT * FROM `product` JOIN `group` USING(group_name)";
-    private static final String GET_BY_ID = "SELECT * FROM  `product` JOIN `group` USING(group_name) WHERE `product_name` = ?";
-    private static final String CREATE = "INSERT INTO `product` (product_name, group_name, product_description, product_manufacturer, product_quantity, product_price) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE `product` SET product_name=?, group_name=?, product_description=?, product_manufacturer=?, product_price=? WHERE `product_name` = ?";
-    private static final String DELETE = "DELETE FROM `product` WHERE `product_name` = ?";
-    private static final String INCREASE_QUANTITY = "UPDATE  `product` SET product_quantity=product_quantity+? WHERE `product_name` = ?";
-    private static final String DECREASE_QUANTITY = "UPDATE  `product` SET product_quantity=product_quantity-? WHERE `product_name` = ?";
+    private static final String GET_ALL = "SELECT * FROM `product` JOIN `group` USING(group_id)";
+    private static final String GET_BY_ID = "SELECT * FROM  `product` JOIN `group` USING(group_id) WHERE `product_id` = ?";
+    private static final String GET_BY_NAME = "SELECT * FROM `product` JOIN `group` USING(group_id) WHERE `product_name` = ?";
+    private static final String CREATE = "INSERT INTO `product` (product_name, group_id, product_description, product_manufacturer, product_quantity, product_price) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE `product` SET product_name=?, group_id=?, product_description=?, product_manufacturer=?, product_price=? WHERE `product_id` = ?";
+    private static final String DELETE = "DELETE FROM `product` WHERE `product_id` = ?";
+    private static final String INCREASE_QUANTITY = "UPDATE  `product` SET product_quantity=product_quantity+? WHERE `product_id` = ?";
+    private static final String DECREASE_QUANTITY = "UPDATE  `product` SET product_quantity=product_quantity-? WHERE `product_id` = ? AND product_quantity>=?";
 
     private final Connection connection;
 
@@ -38,10 +39,10 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public Optional<Product> findByName(String productName) {
+    public Optional<Product> findById(Integer id) {
         Optional<Product> product = Optional.empty();
         try (PreparedStatement query = connection.prepareStatement(GET_BY_ID)){
-            query.setString(1, productName);
+            query.setInt(1, id);
             ResultSet rs = query.executeQuery();
             if (rs.next()) {
                 product =  Optional.of(extractProductFromResultSet(rs));
@@ -53,29 +54,54 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public void create(Product product) {
-        try(PreparedStatement query = connection.prepareStatement(CREATE)){
+    public Optional<Product> findByName(String name) {
+        Optional<Product> product = Optional.empty();
+        try (PreparedStatement query = connection.prepareStatement(GET_BY_NAME)){
+            query.setString(1, name);
+            ResultSet rs = query.executeQuery();
+            if (rs.next()) {
+                product =  Optional.of(extractProductFromResultSet(rs));
+            }
+        }catch (SQLException e) {
+            throw new ServerException(e);
+        }
+        return product;
+    }
+
+    @Override
+    public Integer create(Product product) {
+        try(PreparedStatement query = connection.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS)){
             query.setString(1, product.getName());
-            query.setString(2, product.getGroup().getName());
+            query.setInt(2, product.getGroup().getId());
             query.setString(3, product.getDescription());
             query.setInt(4, product.getManufacturerId());
             query.setInt(5, product.getQuantity());
             query.setBigDecimal(6, product.getPrice());
             query.executeUpdate();
+
+            try (ResultSet generatedKeys = query.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    Integer id = generatedKeys.getInt(1); // отримання згенерованого id
+                    return id;
+                } else {
+                    throw new SQLException("Creating product failed, no ID obtained.");
+                }
+            }
+
         }catch (SQLException e) {
             throw new ServerException(e);
         }
     }
 
     @Override
-    public void update(Product product, String oldProductName) {
+    public void update(Product product) {
         try(PreparedStatement query = connection.prepareStatement(UPDATE)){
             query.setString(1, product.getName());
-            query.setString(2, product.getGroup().getName());
+            query.setInt(2, product.getGroup().getId());
             query.setString(3, product.getDescription());
             query.setInt(4, product.getManufacturerId());
             query.setBigDecimal(5, product.getPrice());
-            query.setString(6, oldProductName);
+            query.setInt(6, product.getId());
             query.executeUpdate();
         }catch (SQLException e) {
             throw new ServerException(e);
@@ -83,9 +109,9 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public void delete(String name) {
+    public void delete(Integer id) {
         try(PreparedStatement query = connection.prepareStatement(DELETE)){
-            query.setString(1, name);
+            query.setInt(1, id);
             query.executeUpdate();
         }catch (SQLException e) {
             throw new ServerException(e);
@@ -93,10 +119,10 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public void increaseQuantity(String productName, int quantity) {
+    public void increaseQuantity(Integer id, int quantity) {
         try(PreparedStatement query = connection.prepareStatement(INCREASE_QUANTITY)){
             query.setInt(1, quantity);
-            query.setString(2, productName);
+            query.setInt(2, id);
             query.executeUpdate();
         }catch (SQLException e) {
             throw new ServerException(e);
@@ -104,11 +130,14 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public void decreaseQuantity(String productName, int quantity) {
+    public boolean decreaseQuantity(Integer id, int quantity) {
         try(PreparedStatement query = connection.prepareStatement(DECREASE_QUANTITY)){
             query.setInt(1, quantity);
-            query.setString(2, productName);
-            query.executeUpdate();
+            query.setInt(2, id);
+            query.setInt(3, quantity);
+
+            int rowsUpdated = query.executeUpdate();
+            return rowsUpdated > 0;
         }catch (SQLException e) {
             throw new ServerException(e);
         }
@@ -196,13 +225,14 @@ public class JdbcProductDao implements ProductDao {
     }
 
     protected static Product extractProductFromResultSet(ResultSet rs) throws SQLException {
-        Product product = new Product();
-        product.setName(rs.getString("product_name"));
-        product.setGroup(JdbcGroupDao.extractGroupFromResultSet(rs));
-        product.setDescription(rs.getString("product_description"));
-        product.setManufacturerId(rs.getInt("product_manufacturer"));
-        product.setQuantity(rs.getInt("product_quantity"));
-        product.setPrice(rs.getBigDecimal("product_price"));
-        return product;
+        return Product.builder()
+                .id(rs.getInt("product_id"))
+                .group(JdbcGroupDao.extractGroupFromResultSet(rs))
+                .name(rs.getString("product_name"))
+                .description(rs.getString("product_description"))
+                .manufacturerId(rs.getInt("product_manufacturer"))
+                .quantity(rs.getInt("product_quantity"))
+                .price(rs.getBigDecimal("product_price"))
+                .build();
     }
 }

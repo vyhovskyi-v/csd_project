@@ -8,12 +8,13 @@ import java.util.Optional;
 
 public interface ProductDao extends AutoCloseable{
      List<Product> findAll();
-     Optional<Product> findByName(String productName);
-     void create(Product product);
-     void update(Product product, String oldProductName);
-     void delete(String name);
-     void increaseQuantity(String productName, int quantity);
-     void decreaseQuantity(String productName, int quantity);
+     Optional<Product> findById(Integer id);
+     Optional<Product> findByName(String name);
+     Integer create(Product product);
+     void update(Product product);
+     void delete(Integer id);
+     void increaseQuantity(Integer productId, int quantity);
+     boolean decreaseQuantity(Integer productId, int quantity);
      List<Product> getProductsByFilter(ProductFilter filter, int limit, int offset);
      void close();
 }

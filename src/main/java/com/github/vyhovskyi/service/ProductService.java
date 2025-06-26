@@ -3,7 +3,6 @@ package com.github.vyhovskyi.service;
 import com.github.vyhovskyi.dao.ProductDao;
 import com.github.vyhovskyi.entity.Product;
 import com.github.vyhovskyi.entity.ProductFilter;
-import com.github.vyhovskyi.exception.ServerException;
 import com.github.vyhovskyi.exception.ServiceException;
 
 import java.util.List;
@@ -23,6 +22,14 @@ public class ProductService {
         }
     }
 
+    public Optional<Product> getProductById(Integer id) {
+        try{
+            return productDao.findById(id);
+        }catch(Exception e){
+            throw new ServiceException("Failed to get product by name", e);
+        }
+    }
+
     public Optional<Product> getProductByName(String name) {
         try{
             return productDao.findByName(name);
@@ -31,43 +38,49 @@ public class ProductService {
         }
     }
 
-    public void addProduct(Product product) {
+    public Integer createProduct(Product product) {
         try{
-            productDao.create(product);
+            return productDao.create(product);
         }catch (Exception e){
             throw new ServiceException("Failed to add product", e);
         }
     }
 
-    public void updateProduct(Product product, String oldName) {
+    public void updateProduct(Product product) {
         try{
-            productDao.update(product, oldName);
+            productDao.update(product);
         }catch (Exception e){
             throw new ServiceException("Failed to update product", e);
         }
     }
 
-    public void deleteProduct(String name) {
+    public void deleteProduct(Integer id) {
+        boolean success;
         try{
-            productDao.delete(name);
+            productDao.delete(id);
         }catch (Exception e){
             throw new ServiceException("Failed to delete product", e);
         }
     }
 
-    public void increaseStock(String productName, int amount) {
+    public void increaseStock(Integer id, int amount) {
         try{
-            productDao.increaseQuantity(productName, amount);
+            productDao.increaseQuantity(id, amount);
         }catch (Exception e){
             throw new ServiceException("Failed to increase stock", e);
         }
     }
 
-    public void decreaseStock(String productName, int amount) {
+    public void decreaseStock(Integer id, int amount) {
+        boolean success;
         try{
-            productDao.decreaseQuantity(productName, amount);
+            success = productDao.decreaseQuantity(id, amount);
         }catch (Exception e){
             throw new ServiceException("Failed to decrease stock", e);
+        }
+
+        if(!success){
+            throw new ServiceException("Not enough product in stock or invalid product ID");
         }
     }
 

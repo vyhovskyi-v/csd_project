@@ -22,9 +22,9 @@ public class GroupService {
         }
     }
 
-    public Optional<Group> getGroupById(String name) {
+    public Optional<Group> getGroupById(Integer id) {
         try{
-            return groupDao.getGroupByName(name);
+            return groupDao.getGroupById(id);
         }catch (Exception e){
             throw new ServiceException("Failed to fetch group by name", e);
         }
@@ -38,17 +38,17 @@ public class GroupService {
         }
     }
 
-    public void updateGroup(Group group, String oldName) {
+    public void updateGroup(Group group) {
         try {
-            groupDao.updateGroup(group, oldName);
+            groupDao.updateGroup(group);
         }catch (Exception e){
             throw new ServiceException("Failed to update group", e);
         }
     }
 
-    public void deleteGroup(String name) {
+    public void deleteGroup(Integer id) {
         try {
-            groupDao.deleteGroup(name);
+            groupDao.deleteGroup(id);
         }catch (Exception e){
             throw new ServiceException("Failed to delete group", e);
         }

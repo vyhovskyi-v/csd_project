@@ -5,16 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
-@Data
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Group {
-    private Integer id;
-    private String name;
-    private String description;
-
+public class User {
+    private String username;
+    private String password;
 
 }
