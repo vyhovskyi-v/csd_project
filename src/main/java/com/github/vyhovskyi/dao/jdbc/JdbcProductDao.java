@@ -145,7 +145,7 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public List<Product> getProductsByFilter(ProductFilter filter, int limit, int offset) {
-        StringBuilder queryBuilder = new StringBuilder("SELECT * FROM `product` JOIN `group` USING(group_name) WHERE 1=1 ");
+        StringBuilder queryBuilder = new StringBuilder("SELECT * FROM `product` JOIN `group` USING(group_id) WHERE 1=1 ");
 
         List<Object> params = new ArrayList<>();
 

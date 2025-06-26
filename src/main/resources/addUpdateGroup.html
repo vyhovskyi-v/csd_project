@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Group Form</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            color: #333;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .container {
+            padding: 20px;
+            max-width: 500px;
+            margin: 40px auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0 16px 0;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #errorBox {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="formTitle">Add Group</h1>
+
+    <div id="errorBox">
+        <ul id="errorList"></ul>
+    </div>
+
+    <form id="groupForm">
+        <input type="hidden" id="groupId">
+
+        <label>Name:</label>
+        <input type="text" id="name" required>
+
+        <label>Description:</label>
+        <textarea id="description" required></textarea>
+
+        <button type="submit">Save</button>
+        <button type="button" onclick="goBack()">Back</button>
+    </form>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (id) {
+        document.getElementById('formTitle').innerText = 'Edit Group';
+        fetch('/controller/api/groups/' + id)
+            .then(res => res.json())
+            .then(group => {
+                document.getElementById('groupId').value = group.id;
+                document.getElementById('name').value = group.name;
+                document.getElementById('description').value = group.description;
+            })
+            .catch(err => alert('Failed to load group'));
+    }
+
+    document.getElementById('groupForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const group = {
+            id: document.getElementById('groupId').value || null,
+            name: document.getElementById('name').value,
+            description: document.getElementById('description').value
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? '/controller/api/groups/' + id : '/controller/api/groups';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(group)
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/controller/groups';
+                } else {
+                    return response.json().then(data => {
+                        if (data.errors) {
+                            showErrors(data.errors);
+                        } else {
+                            alert('Unknown error occurred');
+                        }
+                    });
+                }
+            })
+            .catch(err => alert('Failed to save group'));
+    });
+
+    function showErrors(errors) {
+        const errorBox = document.getElementById('errorBox');
+        const errorList = document.getElementById('errorList');
+
+        errorList.innerHTML = '';
+        errors.forEach(err => {
+            const li = document.createElement('li');
+            li.textContent = err;
+            errorList.appendChild(li);
+        });
+
+        errorBox.style.display = 'block';
+    }
+
+    function goBack() {
+        window.location.href = '/controller/groups';
+    }
+</script>
+
+</body>
+</html>

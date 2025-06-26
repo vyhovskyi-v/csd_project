@@ -26,6 +26,14 @@ public class GroupService {
         try{
             return groupDao.getGroupById(id);
         }catch (Exception e){
+            throw new ServiceException("Failed to fetch group by id", e);
+        }
+    }
+
+    public Optional<Group> getGroupByName(String name) {
+        try{
+            return groupDao.getGroupByName(name);
+        }catch (Exception e){
             throw new ServiceException("Failed to fetch group by name", e);
         }
     }

@@ -3,7 +3,7 @@ package com.github.vyhovskyi.service;
 import com.github.vyhovskyi.dao.UserDao;
 import com.github.vyhovskyi.entity.User;
 import com.github.vyhovskyi.exception.ServerException;
-import com.github.vyhovskyi.server.PasswordUtils;
+import com.github.vyhovskyi.controller.utils.PasswordUtils;
 
 import java.util.Optional;
 

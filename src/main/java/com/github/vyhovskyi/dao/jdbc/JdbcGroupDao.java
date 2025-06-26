@@ -13,6 +13,7 @@ public class JdbcGroupDao implements GroupDao {
 
     private static final String GET_ALL = "SELECT * FROM `group`";
     private static final String GET_BY_ID = "SELECT * FROM `group` WHERE group_id = ?";
+    private static final String GET_BY_NAME = "SELECT * FROM `group` WHERE group_name = ?";
     private static final String CREATE = "INSERT INTO `group` (group_name, group_description) VALUES (?, ?)";
     private static final String UPDATE = "UPDATE `group` SET group_name=?, group_description=?  WHERE group_id = ?";
     private static final String DELETE = "DELETE FROM `group` WHERE group_id = ?";
@@ -42,6 +43,21 @@ public class JdbcGroupDao implements GroupDao {
         Optional<Group> group = Optional.empty();
         try(PreparedStatement query = connection.prepareStatement(GET_BY_ID)){
             query.setInt(1, id);
+            ResultSet rs = query.executeQuery();
+            if(rs.next()) {
+                group = Optional.of(extractGroupFromResultSet(rs));
+            }
+        }catch (SQLException e){
+            throw new ServerException(e);
+        }
+        return group;
+    }
+
+    @Override
+    public Optional<Group> getGroupByName(String name) {
+        Optional<Group> group = Optional.empty();
+        try(PreparedStatement query = connection.prepareStatement(GET_BY_NAME)){
+            query.setString(1, name);
             ResultSet rs = query.executeQuery();
             if(rs.next()) {
                 group = Optional.of(extractGroupFromResultSet(rs));

@@ -1,5 +1,6 @@
-package com.github.vyhovskyi.server;
+package com.github.vyhovskyi.controller.utils;
 
+import com.github.vyhovskyi.controller.JwtHandler;
 import com.github.vyhovskyi.service.ServiceFactory;
 import com.github.vyhovskyi.service.UserService;
 import com.sun.net.httpserver.Authenticator;

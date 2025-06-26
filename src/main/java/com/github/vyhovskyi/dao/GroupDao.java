@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface GroupDao extends AutoCloseable {
     List<Group> getAllGroups();
     Optional<Group> getGroupById(Integer id);
+    Optional<Group> getGroupByName(String name);
     void createGroup(Group group);
     void updateGroup(Group group);
     void deleteGroup(Integer id);

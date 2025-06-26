@@ -1,17 +1,13 @@
-package com.github.vyhovskyi.server.handlers;
+package com.github.vyhovskyi.controller.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.vyhovskyi.dao.DBConnectionManager;
-import com.github.vyhovskyi.dao.jdbc.JdbcUserDao;
 import com.github.vyhovskyi.entity.User;
-import com.github.vyhovskyi.server.JwtHandler;
+import com.github.vyhovskyi.controller.JwtHandler;
 import com.github.vyhovskyi.service.UserService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 
 public class LoginHandler implements HttpHandler {

@@ -1,6 +1,8 @@
 package com.github.vyhovskyi.service;
 
 import com.github.vyhovskyi.dao.DBConnectionManager;
+import com.github.vyhovskyi.dao.GroupDao;
+import com.github.vyhovskyi.dao.jdbc.JdbcGroupDao;
 import com.github.vyhovskyi.dao.jdbc.JdbcProductDao;
 import com.github.vyhovskyi.dao.jdbc.JdbcUserDao;
 import com.github.vyhovskyi.exception.ServerException;
@@ -24,6 +26,15 @@ public class ServiceFactory {
             Connection connection = DBConnectionManager.getConnection();
             return new ProductService(new JdbcProductDao(connection));
         }catch (SQLException e) {
+            throw new ServerException("Can`t connect to database", e);
+        }
+    }
+
+    public static GroupService getGroupDao() {
+        try{
+            Connection connection = DBConnectionManager.getConnection();
+            return new GroupService(new JdbcGroupDao(connection));
+        }catch (SQLException e){
             throw new ServerException("Can`t connect to database", e);
         }
     }

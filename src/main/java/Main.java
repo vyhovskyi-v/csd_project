@@ -1,26 +1,21 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.vyhovskyi.entity.Product;
+import com.github.vyhovskyi.entity.ProductFilter;
+import com.github.vyhovskyi.service.ProductService;
+import com.github.vyhovskyi.service.ServiceFactory;
+
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws JsonProcessingException {
-        String productJson = """
-                {
-                  "name": "Buckwheat",
-                  "group": {
-                    "id": 2
-                  },
-                  "description": "High quality buckwheat",
-                  "manufacturerId": 1,
-                  "quantity": 100,
-                  "price": 29.99
-                }
-                
-                
-                """;
+        ProductService productService = ServiceFactory.getProductService();
 
-        ObjectMapper mapper = new ObjectMapper();
-        Product product = mapper.readValue(productJson, Product.class);
-        System.out.println(product);
+        ProductFilter productFilter = new ProductFilter();
+        productFilter.setName("x");
+
+        List<Product> products = productService.getProductsByFilter(productFilter, 0,0);
+
+        System.out.println(products);
     }
 }
