@@ -47,21 +47,21 @@ public class ApiUpdateGroupCommand implements Command {
 
     private List<String> validate(Group group) {
         List<String> errors = new ArrayList<>();
-        String oldName = groupService.getGroupById(group.getId()).get().getName();
+
+        Optional<Group> existingGroup = groupService.getGroupById(group.getId());
+        if (existingGroup.isEmpty()) {
+            errors.add("Group with such id does not exist");
+            return errors; // немає сенсу далі перевіряти
+        }
+
+        String oldName = existingGroup.get().getName();
 
         if (group.getName() == null || group.getName().isBlank()) {
             errors.add("Group name cannot be blank");
-
-            if (!oldName.equals(group.getName())) {
-                Optional<Group> groupOptional = groupService.getGroupByName(group.getName());
-                if (groupOptional.isPresent()) {
-                    errors.add("Group with such name already exist");
-                }
-            }
-
-            Optional<Group> groupOptional = groupService.getGroupById(group.getId());
-            if (!groupOptional.isPresent()) {
-                errors.add("Group with such id does not exist");
+        } else if (!oldName.equals(group.getName())) {
+            Optional<Group> groupOptional = groupService.getGroupByName(group.getName());
+            if (groupOptional.isPresent()) {
+                errors.add("Group with such name already exist");
             }
         }
 

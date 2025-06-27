@@ -10,8 +10,8 @@ import java.util.Objects;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Product {
     private Integer id;
     private String name;

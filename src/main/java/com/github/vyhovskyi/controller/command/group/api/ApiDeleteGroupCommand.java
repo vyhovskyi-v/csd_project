@@ -27,7 +27,7 @@ public class ApiDeleteGroupCommand implements Command {
                 groupService.deleteGroup(id);
                 exchange.sendResponseHeaders(204, 0);
                 exchange.close();
-            }catch (ServiceException e) {
+            }catch (Exception e) {
                 exchange.sendResponseHeaders(500,0);
                 exchange.close();
             }

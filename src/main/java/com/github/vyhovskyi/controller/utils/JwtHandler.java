@@ -1,4 +1,4 @@
-package com.github.vyhovskyi.controller;
+package com.github.vyhovskyi.controller.utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;

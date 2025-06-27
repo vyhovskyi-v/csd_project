@@ -6,7 +6,6 @@ import com.github.vyhovskyi.controller.utils.HttpSender;
 import com.github.vyhovskyi.entity.Group;
 import com.github.vyhovskyi.exception.ServiceException;
 import com.github.vyhovskyi.service.GroupService;
-import com.github.vyhovskyi.service.ProductService;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class ApiCreateGroupCommand implements Command {
             groupService.addGroup(group);
             exchange.sendResponseHeaders(204, 0);
             exchange.close();
-        }catch (ServiceException e){
+        }catch (Exception e){
             exchange.sendResponseHeaders(500,0);
             exchange.close();
         }
@@ -48,6 +47,8 @@ public class ApiCreateGroupCommand implements Command {
         if (group.getName() == null || group.getName().isBlank()) {
             errors.add("Group name cannot be blank");
 
+
+        }else{
             Optional<Group> groupOptional = groupService.getGroupByName(group.getName());
             if (groupOptional.isPresent()) {
                 errors.add("Group with the same name already exists");

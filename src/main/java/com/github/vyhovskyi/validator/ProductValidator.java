@@ -1,14 +1,11 @@
 package com.github.vyhovskyi.validator;
 
 import com.github.vyhovskyi.entity.Product;
-import com.github.vyhovskyi.service.GroupService;
-import com.github.vyhovskyi.service.ProductService;
-import com.github.vyhovskyi.service.ServiceFactory;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ProductValidator {
 

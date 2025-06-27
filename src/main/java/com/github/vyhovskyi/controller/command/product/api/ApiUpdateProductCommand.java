@@ -45,8 +45,9 @@ public class ApiUpdateProductCommand implements Command {
             productService.updateProduct(product);
             exchange.sendResponseHeaders(204, 0);
             exchange.close();
-        }catch (ServiceException e){
-            HttpSender.sendJson(exchange, 500, "Server Error");
+        }catch (Exception e){
+            exchange.sendResponseHeaders(500, 0);
+            exchange.close();
         }
 
     }

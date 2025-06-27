@@ -69,11 +69,21 @@ public class JdbcGroupDao implements GroupDao {
     }
 
     @Override
-    public void createGroup(Group group) {
-        try(PreparedStatement query = connection.prepareStatement(CREATE)){
+    public Integer createGroup(Group group) {
+        try(PreparedStatement query = connection.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS)){
             query.setString(1, group.getName());
             query.setString(2, group.getDescription());
             query.executeUpdate();
+
+            try (ResultSet generatedKeys = query.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    Integer id = generatedKeys.getInt(1); // отримання згенерованого id
+                    return id;
+                } else {
+                    throw new SQLException("Creating product failed, no ID obtained.");
+                }
+            }
+
         }catch (SQLException e){
             throw new ServerException(e);
         }

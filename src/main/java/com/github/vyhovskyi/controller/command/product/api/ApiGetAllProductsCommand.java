@@ -30,7 +30,8 @@ public class ApiGetAllProductsCommand implements Command {
         try{
             List<Product> products = productService.getProductsByFilter(productFilter, 0,0);
             HttpSender.sendJson(exchange, 200, products);
-        }catch(ServiceException e){
+            exchange.close();
+        }catch(Exception e){
             exchange.sendResponseHeaders(500,0);
             exchange.close();
         }

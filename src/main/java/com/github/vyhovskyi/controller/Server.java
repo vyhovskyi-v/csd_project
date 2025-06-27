@@ -31,11 +31,9 @@ public class Server {
 
     public static void main(String[] args) throws Exception {
 
-        // Параметри для keystore
-        String keystorePath = "keystore.jks"; // якщо лежить у корені проєкту
-        char[] password = "password".toCharArray(); // твій пароль з keytool
+        String keystorePath = "keystore.jks";
+        char[] password = "password".toCharArray();
 
-        // Завантаження keystore
         KeyStore ks = KeyStore.getInstance("JKS");
         try (FileInputStream fis = new FileInputStream(keystorePath)) {
             ks.load(fis, password);
@@ -50,7 +48,6 @@ public class Server {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-        // Налаштування HTTPS-сервера
         HttpsServer server = HttpsServer.create(new InetSocketAddress(8443), 0);
         server.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
             @Override
@@ -62,6 +59,5 @@ public class Server {
         server.createContext("/controller", new ProcessRequestHandler());
         server.start();
 
-        System.out.println("HTTPS-сервер запущено на порті 8443");
     }
 }

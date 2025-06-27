@@ -30,7 +30,7 @@ public class ApiIncreaseQuantityProduct implements Command {
             productService.increaseStock(id, amount);
             exchange.sendResponseHeaders(204, 0);
             exchange.close();
-        }catch(ServiceException e){
+        }catch(Exception e){
             exchange.sendResponseHeaders(500, 0);
             exchange.close();
         }

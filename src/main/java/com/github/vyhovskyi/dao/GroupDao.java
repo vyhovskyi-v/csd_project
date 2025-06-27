@@ -9,7 +9,7 @@ public interface GroupDao extends AutoCloseable {
     List<Group> getAllGroups();
     Optional<Group> getGroupById(Integer id);
     Optional<Group> getGroupByName(String name);
-    void createGroup(Group group);
+    Integer createGroup(Group group);
     void updateGroup(Group group);
     void deleteGroup(Integer id);
     List<Group> getGroupsByFilter(String groupName, String groupDescription, int limit, int offset);

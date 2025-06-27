@@ -2,7 +2,7 @@ package com.github.vyhovskyi.controller.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.vyhovskyi.entity.User;
-import com.github.vyhovskyi.controller.JwtHandler;
+import com.github.vyhovskyi.controller.utils.JwtHandler;
 import com.github.vyhovskyi.service.UserService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
